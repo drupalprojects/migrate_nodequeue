@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Destionation handler for {nodequeue_nodes}.
+ * Destination handler for {nodequeue_queue} and {nodequeue_subqueue}.
  *
- * We cannot use MigrateDestinationTable since {nodequeue_nodes} has no primary key.
+ * TODO do we need to extend MigrateDestinationTable ?
  */
 class NodequeueNodeDestination extends MigrateDestinationTable {
   public function __construct() {
-    parent::__construct('nodequeue_nodes');
+    parent::__construct('nodequeue_queue');
   }
 
   /**
