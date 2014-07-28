@@ -15,12 +15,12 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   /**
    * Array of queues we will migrate.
    */
-  protected $migratedQueues;
+  protected $source_qids;
 
   /**
    * Whether we migrate queues content (nodes).
    */
-  protected $migrateNodes;
+  protected $migrate_nodes;
 
   /**
    * Lay out the steps of the wizard.
@@ -46,12 +46,13 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   protected function nodequeueQueues(&$form_state) {
     //$form['#tree'] = TRUE; // TODO remove
     // TODO description 'select queues you want to migrate'
-    $queues = $this->connection()
+    $qids = $this->connection()
       ->select('nodequeue_queue', 'q')
       ->fields('q', array('qid', 'title'))
+      ->orderBy('title')
       ->execute()
       ->fetchAllKeyed(0);
-    foreach ($queues as $qid => $title) {
+    foreach ($qids as $qid => $title) {
       $nodes = $this->connection() // TODO use a subquery ?
         ->select('nodequeue_nodes', 'n')
         ->condition('qid', $qid)
@@ -64,16 +65,16 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
         ->countQuery()
         ->execute()
         ->fetchField();
-      $queues[$qid] = array(
+      $qids[$qid] = array(
         'title' => $title,
         'subqueues' => $subqueues,
         'nodes' => $nodes,
       );
     }
-    $form['queues'] = array(
+    $form['qids'] = array(
       '#type' => 'tableselect',
       '#header' => array('title' => t('Queue Title'), 'subqueues' => t('Number of Subqueues'), 'nodes' => t('Number of Nodes')),
-      '#options' => $queues,
+      '#options' => $qids,
       '#empty' => t('No queue found on your Drupal!version site.', array('!version' => $this->sourceVersion)),
     );
     $form['nodes'] = array(
@@ -106,8 +107,8 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
    * @param array $form_state
    */
   protected function nodequeueQueuesValidate(&$form_state) {
-    $this->migratedQueues = $form_state['values']['queues'];
-    $this->migrateNodes   = $form_state['values']['nodes'];
+    $this->source_qids   = $form_state['values']['qids'];
+    $this->migrate_nodes = $form_state['values']['nodes'];
   }
 
   /**
@@ -130,8 +131,11 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     // TODO do not do that if module disabled in d6
-    // TODO make sure $arguments['descrition'] is set in the mgiratyion class
-//    $this->addMigration('Queues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", array());
+    $args = array(
+      'description' => 'Migration of nodequeues',
+      'source_qids' => $this->source_qids,
+    );
+    $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", $args);
 
     $imports['queues'] = array(
       '#theme' => 'item_list',
@@ -139,12 +143,14 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#items' => $this->connection()
         ->select('nodequeue_queue', 'q')
         ->fields('q', array('title'))
-        ->condition('qid', $this->migratedQueues, 'IN')
+        ->condition('qid', $this->source_qids, 'IN')
+        ->orderBy('title')
         ->execute()
         ->fetchCol(),
     );
 
-    if ($this->migrateNodes) {
+    if ($this->migrate_nodes) {
+      // TODO make sure $arguments['descrition'] is set in the mgiratyion class
       $this->addMigration('QueuesContent', "NodequeueNodesDrupal{$this->sourceVersion}Migration", array());
       $imports['nodes'] = array(
         '#prefix' => '<div>',

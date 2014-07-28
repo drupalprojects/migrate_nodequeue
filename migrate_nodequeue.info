@@ -17,3 +17,4 @@ files[] = includes/nodequeue_queue.inc
 
 ; D6 implementation
 files[] = includes/d6/nodequeue_node.inc
+files[] = includes/d6/nodequeue_queue.inc
