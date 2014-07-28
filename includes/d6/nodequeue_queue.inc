@@ -20,8 +20,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
     $this->map = new MigrateSQLMap($this->machineName, $key_schema, $key_schema);
 
     // Declare field mappings.
-    // TODO list all fields
-    $this->addSimpleMappings(array('name', 'title'));
+    $this->addSimpleMappings(array('name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
   }
 
   /**
@@ -32,7 +31,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
   protected function query() {
     $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_queue', 'q')
-      ->fields('q', array('qid', 'name', 'title')); // TODO list all fields
+      ->fields('q', array('qid', 'name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
     if (!empty($this->source_qids)) {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }

@@ -21,9 +21,9 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
    * Use nodequeue API.
    */
   public function import(stdClass $d7queue, stdclass $d6queue) {
-    // TODO
-    dpm($d7queue, 'd');
-    return array(1); // TODO or qid, depending on what the API returns
+    $qid = nodequeue_save($d7queue);
+    $this->numCreated++;
+    return array($qid);
   }
 
   /**
@@ -32,7 +32,7 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
    * Use nodequeue API.
    */
   public function rollback(array $key) {
-    $qid = $key['destid'];
+    $qid = $key['destid1'];
     nodequeue_delete($qid);
   }
 
