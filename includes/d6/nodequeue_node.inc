@@ -5,7 +5,6 @@
  *
  * TODO Nodequeues are expected to exist in D7 prior to the migration (featurized).
  * Nodequeues mapping is based on the machine name -- not on the qid.
- * TODO Nodequeues are expected to have only one subqueue.
  * TODO remove $queues_map
  * TODO remove any refs
  */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Destination handler for {nodequeue_queue} and {nodequeue_subqueue}.
+ * Destination handler for nodequeues.
  */
 class NodequeueQueueDestination extends MigrateDestinationTable {
   public function __construct() {

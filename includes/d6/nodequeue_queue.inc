@@ -55,7 +55,6 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
       ->execute()
       ->fetchCol();
 
-    // TODO ability to map types.
     // Populate $row->types.
     $row->types = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_types', 't')
@@ -63,8 +62,6 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
       ->condition('qid', $row->qid)
       ->execute()
       ->fetchCol();
-
-    // TODO populate subqueues
   }
 
   /**

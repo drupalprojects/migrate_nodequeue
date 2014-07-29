@@ -7,6 +7,7 @@
 
 // TODO ability to re-use node migration for mappings.
 // TODO ability to re-use role migration for mappings.
+// TODO ability to re-use type migration for mappings.
 // TODO should work only with D6 sources.
 // TODO does it work when nodequeue not enabled on d6 ?
 // TODO import variables ?
@@ -44,7 +45,6 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
    * Present information and options around Queues migrations.
    */
   protected function nodequeueQueues(&$form_state) {
-    //$form['#tree'] = TRUE; // TODO remove
     // TODO description 'select queues you want to migrate'
     $qids = $this->connection()
       ->select('nodequeue_queue', 'q')
@@ -53,13 +53,13 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       ->execute()
       ->fetchAllKeyed(0);
     foreach ($qids as $qid => $title) {
-      $nodes = $this->connection() // TODO use a subquery ?
+      $nodes = $this->connection()
         ->select('nodequeue_nodes', 'n')
         ->condition('qid', $qid)
         ->countQuery()
         ->execute()
         ->fetchField();
-      $subqueues = $this->connection() // TODO use a subquery ?
+      $subqueues = $this->connection()
         ->select('nodequeue_subqueue', 's')
         ->condition('qid', $qid)
         ->countQuery()
