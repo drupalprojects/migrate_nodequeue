@@ -46,6 +46,35 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
       return FALSE;
     }
     // TODO do not migrate if queue already exists
+
+    // Populate $row->roles.
+    $row->roles = Database::getConnection('default', $this->sourceConnection)
+      ->select('nodequeue_roles', 'r')
+      ->fields('r', array('rid'))
+      ->condition('qid', $row->qid)
+      ->execute()
+      ->fetchCol();
+
+    // TODO ability to map types.
+    // Populate $row->types.
+    $row->types = Database::getConnection('default', $this->sourceConnection)
+      ->select('nodequeue_types', 't')
+      ->fields('t', array('type'))
+      ->condition('qid', $row->qid)
+      ->execute()
+      ->fetchCol();
+
+    // TODO populate subqueues
+  }
+
+  /**
+   * @override
+   *
+   * Map roles & types.
+   */
+  public function prepare($d7queue, $d6queue) {
+    $d7queue->roles = $d6queue->roles;
+    $d7queue->types = $d6queue->types;
   }
 
 }
