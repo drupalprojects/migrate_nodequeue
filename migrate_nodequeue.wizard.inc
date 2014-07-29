@@ -148,7 +148,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
 
     if ($this->migrate_nodes) {
       $args = array('source_qids' => $this->source_qids);
-      $this->addMigration('QueuesContent', "NodequeueNodesDrupal{$this->sourceVersion}Migration", $args);
+      $this->addMigration('NodequeuesContent', "NodequeueNodeDrupal{$this->sourceVersion}Migration", $args);
       $imports['nodes'] = array(
         '#prefix' => '<div>',
         '#markup' => '<p>' . t('Queues content (nodes) will be migrated.') . '</p>',

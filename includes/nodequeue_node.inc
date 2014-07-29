@@ -2,8 +2,6 @@
 
 /**
  * Destionation handler for {nodequeue_nodes}.
- *
- * We cannot use MigrateDestinationTable since {nodequeue_nodes} has no primary key.
  */
 class NodequeueNodeDestination extends MigrateDestinationTable {
   public function __construct() {
@@ -11,7 +9,7 @@ class NodequeueNodeDestination extends MigrateDestinationTable {
   }
 
   /**
-   * {nodequeue_nodes} data are uniquely identified by qid, sqid and nid.
+   * {nodequeue_nodes} has no primary key so we define it excplicitely here.
    */
   public static function getKeySchema() {
     return array(
@@ -38,24 +36,26 @@ class NodequeueNodeDestination extends MigrateDestinationTable {
 
   /**
    * @override
+   *
+   * Use nodequeue API.
    */
-  public function import(stdClass $rowD7, stdclass $rowD6) {
-    // TODO use nodequeue_subqueue_add ?
-    $status = drupal_write_record($this->tableName, $rowD7);
-    ($status == SAVED_NEW) ? $this->numCreated++ : $this->numUpdated++;
-    return array($rowD7->qid, $rowD7->sqid, $rowD7->nid);
+  public function import(stdClass $d7content, stdclass $d6content) {
+    if ($d7content->nid == 150849) { // TODO remove
+      $queue = nodequeue_load($d7content->qid);
+      $subqueue = nodequeue_load_subqueue($d7content->sqid);
+      nodequeue_subqueue_add($queue, $subqueue, $d7content->nid);
+    }
+    //($status == SAVED_NEW) ? $this->numCreated++ : $this->numUpdated++;
+    return array($d7content->qid, $d7content->sqid, $d7content->nid);
   }
 
   /**
    * @override
+   *
+   * Use nodequeue API.
    */
   public function rollback(array $key) {
     // TODO nodequeue_node_delete ?
-    db_delete($this->tableName)
-      ->condition('qid',  $key['destid1'])
-      ->condition('sqid', $key['destid2'])
-      ->condition('nid',  $key['destid3'])
-      ->execute();
   }
 
 }

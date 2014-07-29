@@ -3,6 +3,7 @@
 /**
  * Migrate nodequeue-node relationships.
  * TODO remove any refs
+ * TODO set dependency nodequeue > nodequeuecontent
  */
 class NodequeueNodeDrupal6Migration extends DrupalMigration {
   protected $source_qids;
@@ -34,8 +35,8 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
    */
   protected function query() {
     $query = Database::getConnection('default', 'd6')
-      ->select('nodequeue_nodes', 'n');
-      ->fields('n', array('qid', 'sqid', 'nid', 'position', 'timestamp'))
+      ->select('nodequeue_nodes', 'n')
+      ->fields('n', array('qid', 'sqid', 'nid', 'position', 'timestamp'));
     if (!empty($this->source_qids)) {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }

@@ -47,6 +47,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
       return FALSE;
     }
     // TODO do not migrate if queue already exists
+    // TODO migrate subqueues.
 
     // Populate $row->roles.
     $row->roles = Database::getConnection('default', $this->sourceConnection)
