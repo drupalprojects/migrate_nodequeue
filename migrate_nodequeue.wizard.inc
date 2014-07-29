@@ -131,10 +131,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     // TODO do not do that if module disabled in d6
-    $args = array(
-      'description' => 'Migration of nodequeues',
-      'source_qids' => $this->source_qids,
-    );
+    $args = array('source_qids' => $this->source_qids);
     $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", $args);
 
     $imports['queues'] = array(
@@ -150,8 +147,8 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     if ($this->migrate_nodes) {
-      // TODO make sure $arguments['descrition'] is set in the mgiratyion class
-      $this->addMigration('QueuesContent', "NodequeueNodesDrupal{$this->sourceVersion}Migration", array());
+      $args = array('source_qids' => $this->source_qids);
+      $this->addMigration('QueuesContent', "NodequeueNodesDrupal{$this->sourceVersion}Migration", $args);
       $imports['nodes'] = array(
         '#prefix' => '<div>',
         '#markup' => '<p>' . t('Queues content (nodes) will be migrated.') . '</p>',

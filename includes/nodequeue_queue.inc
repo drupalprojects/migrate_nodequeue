@@ -12,7 +12,7 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
    * Get schema of {nodequeue_queue}.
    */
   public static function getKeySchema() {
-    return parent::getKeySchema('nodequeue_queue'); // TODO need parent ?
+    return getKeySchema('nodequeue_queue');
   }
 
   /**

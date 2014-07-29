@@ -6,7 +6,8 @@
 class NodequeueQueueDrupal6Migration extends DrupalMigration {
   protected $source_qids;
 
-  public function __construct($args) {
+  public function __construct($args = array()) {
+    $args['description'] = 'Migration of nodequeues from Drupal 6';
     parent::__construct($args);
     $this->source_qids = empty($args['source_qids']) ? array() : $args['source_qids'];
 
@@ -31,7 +32,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
   protected function query() {
     $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_queue', 'q')
-      ->fields('q', array('qid', 'name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
+      ->fields('q', array('qid', 'name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n')); // TODO does any of these fields need a mapping ?
     if (!empty($this->source_qids)) {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }
