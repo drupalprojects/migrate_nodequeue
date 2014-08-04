@@ -133,6 +133,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     // TODO do not do that if module disabled in d6
     $args = array('source_qids' => $this->source_qids);
     $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", $args);
+    $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", $args);
 
     $imports['queues'] = array(
       '#theme' => 'item_list',
