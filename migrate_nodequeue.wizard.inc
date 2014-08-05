@@ -131,9 +131,14 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     // TODO do not do that if module disabled in d6
-    $args = array('source_qids' => $this->source_qids);
-    $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", $args);
-    $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", $args);
+    $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", array(
+      'source_qids' => $this->source_qids,
+    ));
+    $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", array(
+      'source_qids' => $this->source_qids,
+      'migration_queues' => 'Nodequeues',
+      'dependencies' => array('Nodequeues'),
+    ));
 
     $imports['queues'] = array(
       '#theme' => 'item_list',
@@ -148,8 +153,11 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     if ($this->migrate_nodes) {
-      $args = array('source_qids' => $this->source_qids);
-      $this->addMigration('NodequeuesContent', "NodequeueNodeDrupal{$this->sourceVersion}Migration", $args);
+      $this->addMigration('NodequeuesContent', "NodequeueNodeDrupal{$this->sourceVersion}Migration", array(
+        'source_qids' => $this->source_qids,
+        'dependencies' => array('Nodequeues', 'NodequeuesSubqueues'),
+        // TODO pass queues & subqueue migration as argument for ->sourceMigration
+      ));
       $imports['nodes'] = array(
         '#prefix' => '<div>',
         '#markup' => '<p>' . t('Queues content (nodes) will be migrated.') . '</p>',
