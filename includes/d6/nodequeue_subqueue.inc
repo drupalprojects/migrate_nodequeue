@@ -21,13 +21,10 @@ class NodequeueSubqueueDrupal6Migration extends DrupalMigration {
     $this->map = new MigrateSQLMap($this->machineName, $key_schema, $key_schema);
 
     // Declare field mappings.
+    isset($args['migration_queues'])
+      ? $this->addFieldMapping('qid', 'qid')->sourceMigration($args['migration_queues'])
+      : $this->addFieldMapping('qid', 'qid');
     $this->addSimpleMappings(array('reference', 'title'));
-    if (isset($args['migration_queues'])) {
-      $this->addFieldMapping('qid', 'qid')->sourceMigration($args['migration_queues']);
-    }
-    else {
-      $this->addFieldMapping('qid', 'qid');
-    }
   }
 
   /**

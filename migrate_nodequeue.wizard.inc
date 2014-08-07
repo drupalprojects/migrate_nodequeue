@@ -136,8 +136,8 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     ));
     $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", array(
       'source_qids' => $this->source_qids,
-      'migration_queues' => $this->groupName . 'Nodequeues',
       'dependencies' => array('Nodequeues'),
+      'migration_queues' => $this->groupName . 'Nodequeues',
     ));
 
     $imports['queues'] = array(
@@ -156,7 +156,9 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       $this->addMigration('NodequeuesContent', "NodequeueNodeDrupal{$this->sourceVersion}Migration", array(
         'source_qids' => $this->source_qids,
         'dependencies' => array('Nodequeues', 'NodequeuesSubqueues'),
-        // TODO pass queues & subqueue migration as argument for ->sourceMigration
+        'migration_queues' => $this->groupName . 'Nodequeues',
+        'migration_subqueues' => $this->groupName . 'NodequeuesSubqueues',
+        'migration_nodes' => NULL, // TODO re-use node migration if provided by user
       ));
       $imports['nodes'] = array(
         '#prefix' => '<div>',

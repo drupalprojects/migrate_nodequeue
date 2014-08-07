@@ -3,7 +3,6 @@
 /**
  * Migrate nodequeue-node relationships.
  * TODO remove any refs
- * TODO set dependency nodequeue > nodequeuecontent
  */
 class NodequeueNodeDrupal6Migration extends DrupalMigration {
   protected $source_qids;
@@ -23,8 +22,16 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
     $this->map = new MigrateSQLMap($this->machineName, $key_schema, $key_schema);
 
     // Declare field mappings.
-    // TODO sourceMigration for qid, nid and sqid
-    $this->addSimpleMappings(array('qid', 'sqid', 'nid', 'position', 'timestamp'));
+    isset($args['migration_queues'])
+      ? $this->addFieldMapping('qid', 'qid')->sourceMigration($args['migration_queues'])
+      : $this->addFieldMapping('qid', 'qid');
+    isset($args['migration_subqueues'])
+      ? $this->addFieldMapping('sqid', 'sqid')->sourceMigration($args['migration_subqueues'])
+      : $this->addFieldMapping('sqid', 'sqid');
+    isset($args['migration_nodes'])
+      ? $this->addFieldMapping('nid', 'nid')->sourceMigration($args['migration_nodes'])
+      : $this->addFieldMapping('nid', 'nid');
+    $this->addSimpleMappings(array('position', 'timestamp'));
   }
 
   /**
