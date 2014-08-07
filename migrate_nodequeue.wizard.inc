@@ -136,7 +136,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     ));
     $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", array(
       'source_qids' => $this->source_qids,
-      'migration_queues' => 'Nodequeues',
+      'migration_queues' => $this->groupName . 'Nodequeues',
       'dependencies' => array('Nodequeues'),
     ));
 

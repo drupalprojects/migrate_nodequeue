@@ -26,6 +26,7 @@ class NodequeueSubqueueDestination extends MigrateDestinationTable {
       throw new MigrateException(t('Unknown queue id  @qid', array('@qid' => $d7subqueue->qid)));
     }
     $subqueue = nodequeue_add_subqueue($queue, $d7subqueue->title, $d7subqueue->reference);
+    $this->numCreated++;
     return array($subqueue->sqid);
   }
 
