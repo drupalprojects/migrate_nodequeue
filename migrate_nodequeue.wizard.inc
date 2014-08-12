@@ -79,9 +79,26 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
     $form['nodes'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Also migrate queues content (nodes)'),
+      '#title' => t('Migrate relations between nodes and nodequeues.'),
+      '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the migrated nodequeue in D7.'),
       '#default_value' => TRUE,
     );
+    $node_migrations = array();
+    foreach (migrate_migrations() as $name => $object) {
+      if (is_subclass_of($object, 'DrupalNodeMigration')) {
+        $node_migrations[] = $name;
+      }
+    }
+    $form['source_nids'] = array(
+      '#title' => t('Node migrations'),
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#options' => $node_migrations,
+      '#states' => array(
+        'invisible' => array(':input[name="nodes"]' => array('checked' => FALSE)),
+      ),
+    );
+    // TODO source_nids should be required
     // TODO disable that if count(queues) is empty
     // TODO set default value if migration extends DrupalUserMigration
     // TODO description: 'you can create one with migrate_d2d_ui'
@@ -153,7 +170,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
 
     if ($this->migrate_nodes) {
-      $this->addMigration('NodequeuesContent', "NodequeueNodeDrupal{$this->sourceVersion}Migration", array(
+      $this->addMigration('NodequeuesNodeRelations', "NodequeueNodeDrupal{$this->sourceVersion}Migration", array(
         'source_qids' => $this->source_qids,
         'dependencies' => array('Nodequeues', 'NodequeuesSubqueues'),
         'migration_queues' => $this->groupName . 'Nodequeues',
