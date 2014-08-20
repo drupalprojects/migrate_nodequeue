@@ -19,9 +19,14 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   protected $source_qids;
 
   /**
-   * Whether we migrate queues content (nodes).
+   * Whether we migrate nodes/nodequeues relations.
    */
-  protected $migrate_nodes;
+  protected $toggle_nodes;
+
+  /**
+   * Array of node migrations used for nodes/nodequeues relations.
+   */
+  protected $migrations_nodes;
 
   /**
    * Lay out the steps of the wizard.
@@ -77,23 +82,18 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#options' => $qids,
       '#empty' => t('No queue found on your Drupal!version site.', array('!version' => $this->sourceVersion)),
     );
-    $form['nodes'] = array(
+    $form['toggle_nodes'] = array(
       '#type' => 'checkbox',
       '#title' => t('Migrate relations between nodes and nodequeues.'),
       '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the migrated nodequeue in D7.'),
       '#default_value' => TRUE,
     );
-    $node_migrations = array();
-    foreach (migrate_migrations() as $name => $object) {
-      if (is_subclass_of($object, 'DrupalNodeMigration')) {
-        $node_migrations[] = $name;
-      }
-    }
-    $form['source_nids'] = array(
+    // TODO move the checkbox config in extra step.
+    $form['migrations_nodes'] = array(
       '#title' => t('Node migrations'),
       '#type' => 'select',
       '#multiple' => TRUE,
-      '#options' => $node_migrations,
+      '#options' => $this->getTypedMigrations('DrupalNodeMigration'),
       '#states' => array(
         'invisible' => array(':input[name="nodes"]' => array('checked' => FALSE)),
       ),
@@ -119,13 +119,32 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   }
 
   /**
+   * Return a list of available migrations inheriting a given class.
+   *
+   * @param $superclass
+   *   Super class.
+   * @return
+   *   Array of migrations.
+   */
+  protected function getTypedMigrations($superclass) {
+    $migrations = array();
+    foreach (migrate_migrations() as $name => $object) {
+      if (is_subclass_of($object, $superclass)) {
+        $migrations[$name] = $name;
+      }
+    }
+    return $migrations;
+  }
+
+  /**
    * Prepare for registration.
    *
    * @param array $form_state
    */
   protected function nodequeueQueuesValidate(&$form_state) {
-    $this->source_qids   = $form_state['values']['qids'];
-    $this->migrate_nodes = $form_state['values']['nodes'];
+    $this->source_qids      = $form_state['values']['qids'];
+    $this->toggle_nodes     = $form_state['values']['toggle_nodes'];
+    $this->migrations_nodes = $form_state['values']['migrations_nodes'];
   }
 
   /**
@@ -157,7 +176,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       'migration_queues' => $this->groupName . 'Nodequeues',
     ));
 
-    $imports['queues'] = array(
+    $imports[] = array(
       '#theme' => 'item_list',
       '#prefix' => t('Queues to be migrated:'),
       '#items' => $this->connection()
@@ -169,18 +188,18 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
         ->fetchCol(),
     );
 
-    if ($this->migrate_nodes) {
+    if ($this->toggle_nodes) {
       $this->addMigration('NodequeuesNodeRelations', "NodequeueNodeDrupal{$this->sourceVersion}Migration", array(
         'source_qids' => $this->source_qids,
         'dependencies' => array('Nodequeues', 'NodequeuesSubqueues'),
         'migration_queues' => $this->groupName . 'Nodequeues',
         'migration_subqueues' => $this->groupName . 'NodequeuesSubqueues',
-        'migration_nodes' => NULL, // TODO re-use node migration if provided by user
+        'migrations_nodes' => $this->migrations_nodes,
       ));
-      $imports['nodes'] = array(
-        '#prefix' => '<div>',
-        '#markup' => '<p>' . t('Queues content (nodes) will be migrated.') . '</p>',
-        '#suffix' => '</div>',
+      $imports[] = array(
+        '#theme' => 'item_list',
+        '#prefix' => t('Nodes/nodequeues relations will be migrated based on these migrations:'),
+        '#items' => $this->migrations_nodes,
       );
     }
 
