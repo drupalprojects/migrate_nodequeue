@@ -5,7 +5,6 @@
  * Wizard implementation for nodequeue migrations.
  */
 
-// TODO ability to re-use node migration for mappings.
 // TODO ability to re-use role migration for mappings.
 // TODO ability to re-use type migration for mappings.
 // TODO should work only with D6 sources.
@@ -20,13 +19,17 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
 
   /**
    * Whether we migrate nodes/nodequeues relations.
+   * Array of node migrations.
    */
   protected $toggle_nodes;
+  protected $migrations_nodes;
 
   /**
-   * Array of node migrations used for nodes/nodequeues relations.
+   * Whether we migrate roles.
+   * Array of role migrations.
    */
-  protected $migrations_nodes;
+  protected $toggle_roles;
+  protected $migrations_roles;
 
   /**
    * Lay out the steps of the wizard.
@@ -86,7 +89,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#type' => 'checkbox',
       '#title' => t('Migrate relations between nodes and nodequeues.'),
       '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the migrated nodequeue in D7.'),
-      '#default_value' => TRUE,
+      '#default_value' => FALSE,
     );
     // TODO move the checkbox config in extra step.
     $form['migrations_nodes'] = array(
@@ -95,10 +98,10 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#multiple' => TRUE,
       '#options' => $this->getTypedMigrations('DrupalNodeMigration'),
       '#states' => array(
-        'invisible' => array(':input[name="nodes"]' => array('checked' => FALSE)),
+        'invisible' => array(':input[name="toggle_nodes"]' => array('checked' => FALSE)),
       ),
     );
-    // TODO source_nids should be required
+    // TODO migrations_nodes & migrations_roles should be required
     // TODO disable that if count(queues) is empty
     // TODO set default value if migration extends DrupalUserMigration
     // TODO description: 'you can create one with migrate_d2d_ui'
@@ -108,13 +111,22 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#title' => t('I have already migrated users'),
       '#options' => array(0 => t('- No -')) + array_keys(migrate_migrations()),
     );
-    $form['map_roles'] = array(
-      '#type' => 'select',
-      '#title' => t('I have already migrated roles'),
-      '#options' => array(0 => t('- No -')) + array_keys(migrate_migrations()),
-    );
     */
-    // TODO checkbox + ability to map content types
+    $form['toggle_roles'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Migrate roles configuration'),
+      '#description' => t('This will migrate the roles configuration, i.e. which roles are allowed to add nodes to the queues.'),
+      '#default_value' => FALSE,
+    );
+    $form['migrations_roles'] = array(
+      '#title' => t('Role migrations'),
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#options' => $this->getTypedMigrations('DrupalRoleMigration'),
+      '#states' => array(
+        'invisible' => array(':input[name="toggle_roles"]' => array('checked' => FALSE)),
+      ),
+    );
     return $form;
   }
 
@@ -144,7 +156,9 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   protected function nodequeueQueuesValidate(&$form_state) {
     $this->source_qids      = $form_state['values']['qids'];
     $this->toggle_nodes     = $form_state['values']['toggle_nodes'];
+    $this->toggle_roles     = $form_state['values']['toggle_roles'];
     $this->migrations_nodes = $form_state['values']['migrations_nodes'];
+    $this->migrations_roles = $form_state['values']['migrations_roles'];
   }
 
   /**
@@ -169,6 +183,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     // TODO do not do that if module disabled in d6
     $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", array(
       'source_qids' => $this->source_qids,
+      'migrations_roles' => $this->toggle_roles ? $this->migrations_roles : array(),
     ));
     $this->addMigration('NodequeuesSubqueues', "NodequeueSubqueueDrupal{$this->sourceVersion}Migration", array(
       'source_qids' => $this->source_qids,
