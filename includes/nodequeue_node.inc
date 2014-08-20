@@ -40,12 +40,10 @@ class NodequeueNodeDestination extends MigrateDestinationTable {
    * Use nodequeue API.
    */
   public function import(stdClass $d7content, stdclass $d6content) {
-    if ($d7content->nid == 150849) { // TODO remove
-      $queue = nodequeue_load($d7content->qid);
-      $subqueue = nodequeue_load_subqueue($d7content->sqid); // TODO re-use mapping
-      nodequeue_subqueue_add($queue, $subqueue, $d7content->nid);
-    }
-    //($status == SAVED_NEW) ? $this->numCreated++ : $this->numUpdated++;
+    $queue = nodequeue_load($d7content->qid);
+    $subqueue = nodequeue_load_subqueue($d7content->sqid);
+    nodequeue_subqueue_add($queue, $subqueue, $d7content->nid);
+    $this->numCreated++;
     return array($d7content->qid, $d7content->sqid, $d7content->nid);
   }
 
@@ -55,7 +53,9 @@ class NodequeueNodeDestination extends MigrateDestinationTable {
    * Use nodequeue API.
    */
   public function rollback(array $key) {
-    // TODO nodequeue_node_delete ?
+    $sqid = $key['destid2'];
+    $nid  = $key['destid3'];
+    nodequeue_subqueue_remove_node($sqid, $nid);
   }
 
 }

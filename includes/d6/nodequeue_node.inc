@@ -28,8 +28,8 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
     isset($args['migration_subqueues'])
       ? $this->addFieldMapping('sqid', 'sqid')->sourceMigration($args['migration_subqueues'])
       : $this->addFieldMapping('sqid', 'sqid');
-    isset($args['migration_nodes'])
-      ? $this->addFieldMapping('nid', 'nid')->sourceMigration($args['migration_nodes'])
+    isset($args['migrations_nodes'])
+      ? $this->addFieldMapping('nid', 'nid')->sourceMigration($args['migrations_nodes'])
       : $this->addFieldMapping('nid', 'nid');
     $this->addSimpleMappings(array('position', 'timestamp'));
   }
