@@ -5,7 +5,7 @@
  */
 class NodequeueRoleDestination extends MigrateDestinationTable {
   public function __construct() {
-    parent::__construct('nodequeue_role');
+    parent::__construct('nodequeue_roles');
   }
 
   /**
@@ -33,29 +33,36 @@ class NodequeueRoleDestination extends MigrateDestinationTable {
    */
   public function import(stdClass $d7role, stdclass $d6role) {
     // Make sure D7 queue exists.
-    // TODO
+    if (!nodequeue_load_queues(array($d7role->qid))) {
+      throw new MigrateException(t('Invalid destination queue ID @d7qid (source queue ID was @d6qid)', array('@d6qid' => $d6role->qid, '@d7qid' => $d7role->qid)));
+    }
 
     // Make sure D7 role  exists.
     if (!user_role_load($d7role->rid)) {
       throw new MigrateException(t('Invalid destination role ID @d7rid (source role ID was @d6rid)', array('@d6rid' => $d6role->rid, '@d7rid' => $d7role->rid)));
     }
+    
+    // Import record.
+    $status = drupal_write_record('nodequeue_roles', $d7role);
+    if ($status) {
+      ($status == SAVED_NEW) ? $this->numCreated++ : $this->numUpdated++;
+    }
 
-    /*
-    $queue = nodequeue_load($d7content->qid);
-    $subqueue = nodequeue_load_subqueue($d7content->sqid);
-    nodequeue_subqueue_add($queue, $subqueue, $d7content->nid);
-    $this->numCreated++;
-    */
-    // TODO import record
     return array($d7role->qid, $d7role->rid);
   }
 
   /**
    * @override
    *
-   * TODO remove record
+   * Rollback record.
    */
   public function rollback(array $key) {
+    $qid = $key['destid1'];
+    $rid = $key['destid2'];
+    db_delete('nodequeue_roles')
+      ->condition('qid', $qid)
+      ->condition('rid', $rid)
+      ->execute();
   }
 
 }

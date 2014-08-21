@@ -32,7 +32,7 @@ class NodequeueRoleDrupal6Migration extends DrupalMigration {
   /**
    * @override
    *
-   * Get {nodequeue_role} data.
+   * Get {nodequeue_roles} data.
    */
   protected function query() {
     $query = Database::getConnection('default', 'd6') // TODO do not use 'd6', see elsewhere
