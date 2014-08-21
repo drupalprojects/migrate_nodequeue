@@ -5,7 +5,6 @@
  * Wizard implementation for nodequeue migrations.
  */
 
-// TODO ability to re-use role migration for mappings.
 // TODO ability to re-use type migration for mappings.
 // TODO should work only with D6 sources.
 // TODO does it work when nodequeue not enabled on d6 ?
@@ -88,7 +87,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     $form['toggle_nodes'] = array(
       '#type' => 'checkbox',
       '#title' => t('Migrate relations between nodes and nodequeues.'),
-      '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the migrated nodequeue in D7.'),
+      '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the nodequeue in D7.'),
       '#default_value' => FALSE,
     );
     // TODO move the checkbox config in extra step.
@@ -215,6 +214,20 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
         '#theme' => 'item_list',
         '#prefix' => t('Nodes/nodequeues relations will be migrated based on these migrations:'),
         '#items' => $this->migrations_nodes,
+      );
+    }
+
+    if ($this->toggle_roles) {
+      $this->addMigration('NodequeuesRoleConfig', "NodequeueRoleDrupal{$this->sourceVersion}Migration", array(
+        'source_qids' => $this->source_qids,
+        'dependencies' => array('Nodequeues'),
+        'migration_queues' => $this->groupName . 'Nodequeues',
+        'migrations_roles' => $this->migrations_roles,
+      ));
+      $imports[] = array(
+        '#theme' => 'item_list',
+        '#prefix' => t('Roles configuration will be migrated baed on these migrations:'),
+        '#items' => $this->migrations_roles,
       );
     }
 

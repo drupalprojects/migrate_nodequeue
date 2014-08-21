@@ -21,7 +21,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
     $this->map = new MigrateSQLMap($this->machineName, $key_schema, $key_schema);
 
     // Declare field mappings.
-    $this->addSimpleMappings(array('name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
+    $this->addSimpleMappings(array('name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n')); // TODO does any of these fields need a mapping ? e.g. owner => user
   }
 
   /**
@@ -32,7 +32,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
   protected function query() {
     $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_queue', 'q')
-      ->fields('q', array('qid', 'name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n')); // TODO does any of these fields need a mapping ?
+      ->fields('q', array('qid', 'name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
     if (!empty($this->source_qids)) {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }
@@ -47,15 +47,6 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
       return FALSE;
     }
     // TODO do not migrate if queue already exists
-
-    // Populate $row->roles.
-    $row->roles = Database::getConnection('default', $this->sourceConnection)
-      ->select('nodequeue_roles', 'r')
-      ->fields('r', array('rid'))
-      ->condition('qid', $row->qid)
-      ->execute()
-      ->fetchCol();
-
     // Populate $row->types.
     $row->types = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_types', 't')
@@ -68,10 +59,10 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
   /**
    * @override
    *
-   * Map roles & types.
+   * Set roles and types.
    */
   public function prepare($d7queue, $d6queue) {
-    $d7queue->roles = $d6queue->roles;
+    $d7queue->roles = array();
     $d7queue->types = $d6queue->types;
   }
 
