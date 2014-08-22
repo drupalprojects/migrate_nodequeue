@@ -84,7 +84,6 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
    * Present information and options around Queues migrations.
    */
   protected function nodequeueQueues(&$form_state) {
-    // TODO description 'select queues you want to migrate'
     $qids = $this->connection()
       ->select('nodequeue_queue', 'q')
       ->fields('q', array('qid', 'title'))
@@ -125,6 +124,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
     $form['migrations_nodes'] = array(
       '#title' => t('Node migrations'),
+      '#description' => t('If you have no node migration, you may create one with <a href="http://drupal.org/project/migrate_d2d">migrate_d2d_ui</a>.'),
       '#type' => 'select',
       '#multiple' => TRUE,
       '#options' => $this->getTypedMigrations('DrupalNodeMigration'),
@@ -133,7 +133,6 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       ),
     );
     // TODO migrations_nodes & migrations_roles should be required
-    // TODO description: 'you can create one with migrate_d2d_ui'
     $form['toggle_roles'] = array(
       '#type' => 'checkbox',
       '#title' => t('Migrate roles configuration'),
@@ -142,6 +141,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
     );
     $form['migrations_roles'] = array(
       '#title' => t('Role migrations'),
+      '#description' => t('If you have no role migration, you may create one with <a href="http://drupal.org/project/migrate_d2d">migrate_d2d_ui</a>.'),
       '#type' => 'select',
       '#multiple' => TRUE,
       '#options' => $this->getTypedMigrations('DrupalRoleMigration'),
@@ -149,6 +149,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
         'invisible' => array(':input[name="toggle_roles"]' => array('checked' => FALSE)),
       ),
     );
+
     return $form;
   }
 
