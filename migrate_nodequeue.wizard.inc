@@ -5,9 +5,7 @@
  * Wizard implementation for nodequeue migrations.
  */
 
-// TODO should work only with D6 sources.
-// TODO does it work when nodequeue not enabled on d6 ?
-// TODO import variables ?
+// TODO maybe import strongarm variables.
 class MigrateNodequeueWizard extends MigrateD2DWizard {
 
   /**
@@ -48,6 +46,41 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
   }
 
   /**
+   * Check if a module exists on source site.
+   *
+   * @param $module
+   *   Module name.
+   * @return
+   *   TRUE if module exists, FALSE otherwise.
+   */
+  public function moduleExists($module) {
+    return Database::getConnection('default', $this->sourceConnection)
+      ->select('system', 's')
+      ->fields('s', array('status'))
+      ->condition('name', $module)
+      ->condition('type', 'module')
+      ->execute()
+      ->fetchField();
+  }
+
+  /**
+   * @override
+   */
+  protected function sourceDataFormValidate(&$form_state) {
+    parent::sourceDataFormValidate($form_state);
+
+    // We only support migrations from D6.
+    if ($this->sourceVersion != 6) {
+      form_set_error('driver', t('Nodequeue migrations are supported only from Drupal 6.'));
+    }
+
+    // Nodequeue needs to be enabled on source site.
+    if (!$this->moduleExists('nodequeue')) {
+      form_set_error('driver', t('Nodequeue must be enabled on the source site.'));
+    }
+  }
+
+  /**
    * Present information and options around Queues migrations.
    */
   protected function nodequeueQueues(&$form_state) {
@@ -83,13 +116,13 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#options' => $qids,
       '#empty' => t('No queue found on your Drupal!version site.', array('!version' => $this->sourceVersion)),
     );
+
     $form['toggle_nodes'] = array(
       '#type' => 'checkbox',
       '#title' => t('Migrate relations between nodes and nodequeues.'),
       '#description' => t('This will create an additional migration for nodes/nodequeues relations. If a node was in a nodequeue in D6, then it will remain in the nodequeue in D7.'),
       '#default_value' => FALSE,
     );
-    // TODO move the checkbox config in extra step.
     $form['migrations_nodes'] = array(
       '#title' => t('Node migrations'),
       '#type' => 'select',
@@ -100,16 +133,7 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       ),
     );
     // TODO migrations_nodes & migrations_roles should be required
-    // TODO disable that if count(queues) is empty
-    // TODO set default value if migration extends DrupalUserMigration
     // TODO description: 'you can create one with migrate_d2d_ui'
-    /*
-    $form['map_users'] = array(
-      '#type' => 'select',
-      '#title' => t('I have already migrated users'),
-      '#options' => array(0 => t('- No -')) + array_keys(migrate_migrations()),
-    );
-    */
     $form['toggle_roles'] = array(
       '#type' => 'checkbox',
       '#title' => t('Migrate roles configuration'),
@@ -178,7 +202,6 @@ class MigrateNodequeueWizard extends MigrateD2DWizard {
       '#suffix' => '</div>',
     );
 
-    // TODO do not do that if module disabled in d6
     $this->addMigration('Nodequeues', "NodequeueQueueDrupal{$this->sourceVersion}Migration", array(
       'source_qids' => $this->source_qids,
       'migrations_roles' => $this->toggle_roles ? $this->migrations_roles : array(),
