@@ -35,7 +35,7 @@ class NodequeueRoleDrupal6Migration extends DrupalMigration {
    * Get {nodequeue_roles} data.
    */
   protected function query() {
-    $query = Database::getConnection('default', 'd6') // TODO do not use 'd6', see elsewhere
+    $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_roles', 'r')
       ->fields('r', array('qid', 'rid'));
     if (!empty($this->source_qids)) {

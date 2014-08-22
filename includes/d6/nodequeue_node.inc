@@ -37,10 +37,9 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
    * @override
    *
    * Get {nodequeue_node} data.
-   * Join with {nodequeue_queue} to have the machine name.
    */
   protected function query() {
-    $query = Database::getConnection('default', 'd6')
+    $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_nodes', 'n')
       ->fields('n', array('qid', 'sqid', 'nid', 'position', 'timestamp'));
     if (!empty($this->source_qids)) {
