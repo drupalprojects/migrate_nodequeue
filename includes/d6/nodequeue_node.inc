@@ -2,7 +2,6 @@
 
 /**
  * Migrate nodequeue-node relationships.
- * TODO remove any refs
  */
 class NodequeueNodeDrupal6Migration extends DrupalMigration {
   protected $source_qids;
@@ -48,16 +47,6 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }
     return $query;
-  }
-
-  /**
-   * @override
-   */
-  public function prepareRow($row) {
-    if (parent::prepareRow($row) === FALSE) {
-      return FALSE;
-    }
-    // TODO Make sure the D7 queue exists
   }
 
 }

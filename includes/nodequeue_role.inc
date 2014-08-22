@@ -33,7 +33,8 @@ class NodequeueRoleDestination extends MigrateDestinationTable {
    */
   public function import(stdClass $d7role, stdclass $d6role) {
     // Make sure D7 queue exists.
-    if (!nodequeue_load_queues(array($d7role->qid))) {
+    $qname = migrate_nodequeue_get_qname($d7role->qid);
+    if (!$qname || !nodequeue_load($qname)) {
       throw new MigrateException(t('Invalid destination queue ID @d7qid (source queue ID was @d6qid)', array('@d6qid' => $d6role->qid, '@d7qid' => $d7role->qid)));
     }
 

@@ -21,7 +21,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
     $this->map = new MigrateSQLMap($this->machineName, $key_schema, $key_schema);
 
     // Declare field mappings.
-    $this->addSimpleMappings(array('name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n')); // TODO does any of these fields need a mapping ? e.g. owner => user
+    $this->addSimpleMappings(array('name', 'title', 'subqueue_title', 'size', 'link', 'link_remove', 'owner', 'show_in_ui', 'show_in_tab', 'show_in_links', 'reference', 'reverse', 'i18n'));
   }
 
   /**
