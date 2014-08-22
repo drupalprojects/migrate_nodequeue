@@ -46,7 +46,13 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
     if (parent::prepareRow($row) === FALSE) {
       return FALSE;
     }
-    // TODO do not migrate if queue already exists
+
+    // Make sure the queue does not exist already.
+    if (nodequeue_load($row->name)) {
+      $this->queueMessage(t('Queue %qname already exists on destination.', array('%qname' => $row->name)), self::MESSAGE_ERROR);
+      return FALSE;
+    }
+
     // Populate $row->types.
     $row->types = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_types', 't')
@@ -70,7 +76,7 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
     $d7queue->types = array();
     foreach ($d6queue->types as $type) {
       if (!node_type_load($type)) {
-        $this->queueMessage(t('Type %type does not exist on destination. %type nodes will not be able to be added to queue %qname.', array('%type' => $type, '%qname' => $d7queue->name)), self::MESSAGE_WARNING);
+        $this->queueMessage(t('Type %type does not exist on destination. Queue %qname will not accept %type nodes.', array('%type' => $type, '%qname' => $d7queue->name)), self::MESSAGE_WARNING);
       }
       else {
         $d7queue->types[] = $type;
