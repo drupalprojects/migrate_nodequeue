@@ -5,7 +5,6 @@
  * Wizard implementation for nodequeue migrations.
  */
 
-// TODO ability to re-use type migration for mappings.
 // TODO should work only with D6 sources.
 // TODO does it work when nodequeue not enabled on d6 ?
 // TODO import variables ?

@@ -58,12 +58,24 @@ class NodequeueQueueDrupal6Migration extends DrupalMigration {
 
   /**
    * @override
-   *
-   * Set roles and types.
    */
   public function prepare($d7queue, $d6queue) {
+    // Set roles.
+    // Empty array - NodequeueRole migrations will take care of values.
     $d7queue->roles = array();
-    $d7queue->types = $d6queue->types;
+
+    // Set types.
+    // Assume content types have the same machine name in D6 and D7.
+    // Make sure content types exist in D7.
+    $d7queue->types = array();
+    foreach ($d6queue->types as $type) {
+      if (!node_type_load($type)) {
+        $this->queueMessage(t('Type %type does not exist on destination. %type nodes will not be able to be added to queue %qname.', array('%type' => $type, '%qname' => $d7queue->name)), self::MESSAGE_WARNING);
+      }
+      else {
+        $d7queue->types[] = $type;
+      }
+    }
   }
 
 }
