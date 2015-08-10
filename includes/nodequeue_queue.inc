@@ -11,7 +11,7 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
   /**
    * Get schema of {nodequeue_queue}.
    */
-  public static function getKeySchema() {
+  public static function getKeySchema($table_name = NULL) {
     return parent::getKeySchema('nodequeue_queue');
   }
 
@@ -41,7 +41,7 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
   /**
    * Give handlers a chance to modify the object before saving it.
    */
-  public function prepare($d7queue, $d6queue) {
+  public function prepare($d7queue, stdClass $d6queue) {
     $migration = Migration::currentMigration();
     if (method_exists($migration, 'prepare')) {
       $migration->prepare($d7queue, $d6queue);
@@ -51,7 +51,7 @@ class NodequeueQueueDestination extends MigrateDestinationTable {
   /**
    * Give handlers a chance to modify the object after saving it.
    */
-  public function complete($d7queue, $d6queue) {
+  public function complete($d7queue, stdClass $d6queue) {
     $migration = Migration::currentMigration();
     if (method_exists($migration, 'complete')) {
       $migration->complete($d7queue, $d6queue);

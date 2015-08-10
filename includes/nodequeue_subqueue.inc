@@ -11,7 +11,7 @@ class NodequeueSubqueueDestination extends MigrateDestinationTable {
   /**
    * Get schema of {nodequeue_subqueue}.
    */
-  public static function getKeySchema() {
+  public static function getKeySchema($table_name = NULL) {
     return parent::getKeySchema('nodequeue_subqueue');
   }
 

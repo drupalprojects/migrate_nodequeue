@@ -11,7 +11,7 @@ class NodequeueNodeDestination extends MigrateDestinationTable {
   /**
    * {nodequeue_nodes} has no primary key so we define it excplicitely here.
    */
-  public static function getKeySchema() {
+  public static function getKeySchema($table_name = NULL) {
     return array(
       'qid' => array(
         'description' => 'Queue id',
