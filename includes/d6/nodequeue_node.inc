@@ -41,7 +41,8 @@ class NodequeueNodeDrupal6Migration extends DrupalMigration {
   protected function query() {
     $query = Database::getConnection('default', $this->sourceConnection)
       ->select('nodequeue_nodes', 'n')
-      ->fields('n', array('qid', 'sqid', 'nid', 'position', 'timestamp'));
+      ->fields('n', array('qid', 'sqid', 'nid', 'position', 'timestamp'))
+      ->orderBy('position', 'ASC');
     if (!empty($this->source_qids)) {
       $query = $query->condition('qid', $this->source_qids, 'IN');
     }
